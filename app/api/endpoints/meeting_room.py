@@ -1,6 +1,6 @@
 # app/api/endpoints/meeting_room.py
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_async_session
 from app.crud.meeting_room import meeting_room_crud
@@ -22,12 +22,20 @@ router = APIRouter()
     # Чтобы не показывать опциональные поля None, укажем параметр _exclude_none
     # Если надо не показывать все значения по-умолчанию - _exclude_default
     response_model_exclude_none=True,
+    summary="Регистрация новой переговорной комнаты",
+    response_description="Успешная регистрация комнаты",
 )
 async def create_new_meeting_room(
     meeting_room: MeetingRoomCreate,
     # Указываем зависимость, предоставляющую объект сессии как параметр функции
     session: AsyncSession = Depends(get_async_session),
 ):
+    """
+    Регистрация новой комнаты для переговоров:
+
+    - **name** = Название комнаты
+    - **description** = Описание комнаты
+    """
     # Вызываем функцию проверки уникальности поля name
     await check_name_duplicate(meeting_room.name, session)
     # Вторым параметром передаём сессию в CRUD метод
@@ -39,10 +47,18 @@ async def create_new_meeting_room(
     "/",
     response_model=List[MeetingRoomDB],
     response_model_exclude_none=True,
+    summary="Получить список всех переговорных комнат",
+    response_description="Список получен",
 )
 async def get_all_meeting_rooms(
     session: AsyncSession = Depends(get_async_session),
 ):
+    """
+    Список комнат для переговоров:
+
+    - **name** = Название комнаты
+    - **description** = Описание комнаты
+    """
     get_rooms = await meeting_room_crud.get_multi(session)
     return get_rooms
 

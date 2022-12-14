@@ -9,6 +9,15 @@ class MeetingRoom(BaseModel):
     name: Optional[str] = Field(None, min_length=2, max_length=100)
     description: Optional[str]
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "Переговорная комната #1",
+                "description": "Просторная комната на 40 человек. "
+                "Есть флипчарт, проектор, кофемашина.",
+            }
+        }
+
 
 # Теперь наследуем схему не от BaseModel а от MeetingRoom
 class MeetingRoomCreate(MeetingRoom):
