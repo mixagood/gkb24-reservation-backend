@@ -1,6 +1,6 @@
 # app/api/endpoints/meeting_room.py
 from typing import List
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_async_session
 from app.crud.meeting_room import meeting_room_crud
@@ -68,14 +68,28 @@ async def get_all_meeting_rooms(
     "/{meeting_room_id}",
     response_model=MeetingRoomDB,
     response_model_exclude_none=True,
+    summary="Изменение переговорной комнаты",
+    response_description="Успешное измение комнаты",
 )
 async def partially_update_meeting_room(
+    *,
     # ID обновляемого объекта
-    meeting_room_id: int,
+    meeting_room_id: int = Path(
+        ...,
+        ge=0,
+        title="ID переговорной комнаты",
+        description="Любое положительное число",
+    ),
     # JSON-данные, которые отправил пользователь
     obj_in: MeetingRoomUpdate,
     session: AsyncSession = Depends(get_async_session),
 ):
+    """
+    Измение комнаты для переговоров:
+    - **meeting_room_id** = ID комнаты на изменение
+    - **name** = Название комнаты
+    - **description** = Описание комнаты
+    """
     meeting_room = await check_meeting_room_exists(meeting_room_id, session)
     if obj_in.name is not None:
         # Если в переданных данных, есть поле name
@@ -95,10 +109,23 @@ async def partially_update_meeting_room(
     "/{meeting_room_id}",
     response_model=MeetingRoomDB,
     response_model_exclude_none=True,
+    summary="Удаление переговорной комнаты",
+    response_description="Успешное удаление комнаты",
 )
 async def remove_meeting_room(
-    meeting_room_id: int, session: AsyncSession = Depends(get_async_session)
+    meeting_room_id: int = Path(
+        ...,
+        ge=0,
+        title="ID переговорной комнаты",
+        description="Любое положительное число",
+    ),
+    session: AsyncSession = Depends(get_async_session),
 ):
+    """
+    Удаление комнаты для переговоров:
+
+    - **meeting_room_id** = ID комнаты для удаления
+    """
     meeting_room = await check_meeting_room_exists(meeting_room_id, session)
     meeting_room = await meeting_room_crud.remove(meeting_room, session)
     return meeting_room
@@ -106,10 +133,19 @@ async def remove_meeting_room(
 
 # ручка для получения списка зарезервированных объектов
 @router.get(
-    "/{meeting_room_id}/reservations", response_model=list[ReservationRoomDB]
+    "/{meeting_room_id}/reservations",
+    response_model=list[ReservationRoomDB],
+    summary="Время бронирования конкретной переговорной комнаты",
+    response_description="Запрос успешно получен",
 )
 async def get_reservations_for_room(
-    meeting_room_id: int, session: AsyncSession = Depends(get_async_session)
+    meeting_room_id: int = Path(
+        ...,
+        ge=0,
+        title="ID переговорной комнаты",
+        description="Любое положительное число",
+    ),
+    session: AsyncSession = Depends(get_async_session),
 ):
     await check_meeting_room_exists(meeting_room_id, session)
     reservations = await reservation_crud.get_future_reservations_for_room(
