@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     app_description: str = "..."
     database_url: str = "sqlite+aiosqlite:///./fastapi.db"
     app_version: str = "1.0.5"
+    secret_key: str = "SECRET"
 
     class Config:
         env_file = ".env"
