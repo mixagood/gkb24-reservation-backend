@@ -1,5 +1,5 @@
 # app/schemas/reservation.py
-
+from typing import Optional
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Extra, root_validator, validator, Field
 
@@ -52,6 +52,7 @@ class ReservationRoomCreate(ReservationRoomUpdate):
 class ReservationRoomDB(ReservationRoomBase):
     id: int
     meetingroom_id: int
+    user_id: Optional[int]
 
     # разрешим сериализацию объектов из БД
     class Config:
