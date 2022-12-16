@@ -3,6 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_async_session
+from app.core.user import current_superuser
 from app.crud.meeting_room import meeting_room_crud
 from app.crud.reservation import reservation_crud
 from app.api.validators import check_meeting_room_exists, check_name_duplicate
@@ -22,6 +23,7 @@ router = APIRouter()
     # Чтобы не показывать опциональные поля None, укажем параметр _exclude_none
     # Если надо не показывать все значения по-умолчанию - _exclude_default
     response_model_exclude_none=True,
+    dependencies=[Depends(current_superuser)],
     summary="Регистрация новой переговорной комнаты",
     response_description="Успешная регистрация комнаты",
 )
@@ -31,6 +33,7 @@ async def create_new_meeting_room(
     session: AsyncSession = Depends(get_async_session),
 ):
     """
+    (Могут пользоваться только суперпользователи)
     Регистрация новой комнаты для переговоров:
 
     - **name** = Название комнаты
@@ -68,6 +71,7 @@ async def get_all_meeting_rooms(
     "/{meeting_room_id}",
     response_model=MeetingRoomDB,
     response_model_exclude_none=True,
+    dependencies=[Depends(current_superuser)],
     summary="Изменение переговорной комнаты",
     response_description="Успешное измение комнаты",
 )
@@ -85,6 +89,7 @@ async def partially_update_meeting_room(
     session: AsyncSession = Depends(get_async_session),
 ):
     """
+    (Могут пользоваться только суперпользователи)
     Измение комнаты для переговоров:
     - **meeting_room_id** = ID комнаты на изменение
     - **name** = Название комнаты
@@ -109,6 +114,7 @@ async def partially_update_meeting_room(
     "/{meeting_room_id}",
     response_model=MeetingRoomDB,
     response_model_exclude_none=True,
+    dependencies=[Depends(current_superuser)],
     summary="Удаление переговорной комнаты",
     response_description="Успешное удаление комнаты",
 )
@@ -122,6 +128,7 @@ async def remove_meeting_room(
     session: AsyncSession = Depends(get_async_session),
 ):
     """
+    (Могут пользоваться только суперпользователи)
     Удаление комнаты для переговоров:
 
     - **meeting_room_id** = ID комнаты для удаления
@@ -135,6 +142,8 @@ async def remove_meeting_room(
 @router.get(
     "/{meeting_room_id}/reservations",
     response_model=list[ReservationRoomDB],
+    # Добавим множество с полями, которые нужно исключить из ответа
+    response_model_exclude={"user_id"},
     summary="Время бронирования конкретной переговорной комнаты",
     response_description="Запрос успешно получен",
 )

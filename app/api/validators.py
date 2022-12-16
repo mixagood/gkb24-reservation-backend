@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud.meeting_room import meeting_room_crud
 from app.crud.reservation import reservation_crud
-from app.models import MeetingRoom, Reservation
+from app.models import MeetingRoom, Reservation, User
 
 
 # Корутина, которая проверяет уникальность имени переговорной
@@ -38,7 +38,7 @@ async def check_reservation_intersections(**kwargs) -> None:
 
 
 async def check_reservation_before_edit(
-    reservation_id: int, session: AsyncSession
+    reservation_id: int, session: AsyncSession, user: User
 ) -> Reservation:
     reservation = await reservation_crud.get(
         # Для лучшего понимания, можно передавать параметры по ключу
@@ -47,4 +47,9 @@ async def check_reservation_before_edit(
     )
     if not reservation:
         raise HTTPException(status_code=404, detail="Бронь не найдена!")
+    if reservation.user_id != user.id and not user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Невозможно редактировать или удалять чужую бронь!",
+        )
     return reservation

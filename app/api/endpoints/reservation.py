@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_async_session
-from app.core.user import current_user
+from app.core.user import current_user, current_superuser
 from app.models import User
 from app.crud.reservation import reservation_crud
 from app.api.validators import (
@@ -55,6 +55,7 @@ async def create_reservation(
 @router.get(
     "/",
     response_model=list[ReservationRoomDB],
+    dependencies=[Depends(current_superuser)],
     summary="Получить список зарезервированных комнат",
     response_description="Список успешно получен",
     description="Получить список зарезервированных комнат",
@@ -62,6 +63,9 @@ async def create_reservation(
 async def get_all_reservation(
     session: AsyncSession = Depends(get_async_session),
 ):
+    """
+    (Могут воспользоваться только суперпользователи)
+    """
     reservations = await reservation_crud.get_multi(session)
     return reservations
 
@@ -73,6 +77,7 @@ async def get_all_reservation(
     response_description="Запрос на удаление выполнен",
 )
 async def delete_reservation(
+    *,
     reservation_id: int = Path(
         ...,
         ge=0,
@@ -80,13 +85,16 @@ async def delete_reservation(
         description="Любое положительное число",
     ),
     session: AsyncSession = Depends(get_async_session),
+    user: User,
 ):
     """
     Удаление резервирования комнаты:
 
     - **reservation_id** = ID резервирования для удаления
     """
-    reservation = await check_reservation_before_edit(reservation_id, session)
+    reservation = await check_reservation_before_edit(
+        reservation_id, session, user
+    )
     reservation = await reservation_crud.remove(reservation, session)
     return reservation
 
@@ -107,6 +115,7 @@ async def update_reservation(
     ),
     obj_in: ReservationRoomUpdate,
     session: AsyncSession = Depends(get_async_session),
+    user: User,
 ):
     """
     Запрос на изменение резервирования комнаты
@@ -116,7 +125,9 @@ async def update_reservation(
     - **reservation_id** = Целое число. ID резервирования
     """
     # Проверяем, что объект бронирования уже существует
-    reservation = await check_reservation_before_edit(reservation_id, session)
+    reservation = await check_reservation_before_edit(
+        reservation_id, session, user
+    )
     # Проверяем, что нет пересечений с другими бронированиями
     await check_reservation_intersections(
         # Новое время бронирования, распаковываем на ключевые аргументы
@@ -129,3 +140,22 @@ async def update_reservation(
         db_obj=reservation, obj_in=obj_in, session=session
     )
     return reservation
+
+
+@router.get(
+    "/my_reservations",
+    response_model=list[ReservationRoomDB],
+    # Добавим множество с полями, которые нужно исключить из ответа
+    response_model_exclude={"user_id"},
+)
+async def get_my_reservations(
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user),
+):
+    """
+    Показывает список всех бронирований переговорных комнат для текущего пользователя
+    """
+    reservations = await reservation_crud.get_by_user(
+        session=session, user=user
+    )
+    return reservations
