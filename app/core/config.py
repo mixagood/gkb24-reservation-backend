@@ -1,5 +1,6 @@
 # app/core/config.py
-from pydantic import BaseSettings
+from typing import Optional
+from pydantic import BaseSettings, EmailStr
 
 
 class Settings(BaseSettings):
@@ -8,6 +9,8 @@ class Settings(BaseSettings):
     database_url: str = "sqlite+aiosqlite:///./fastapi.db"
     app_version: str = "1.0.5"
     secret_key: str = "SECRET"
+    first_superuser_email: Optional[EmailStr] = None
+    first_superuser_password: Optional[str] = None
 
     class Config:
         env_file = ".env"

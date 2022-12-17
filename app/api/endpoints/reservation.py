@@ -77,7 +77,6 @@ async def get_all_reservation(
     response_description="Запрос на удаление выполнен",
 )
 async def delete_reservation(
-    *,
     reservation_id: int = Path(
         ...,
         ge=0,
@@ -85,7 +84,7 @@ async def delete_reservation(
         description="Любое положительное число",
     ),
     session: AsyncSession = Depends(get_async_session),
-    user: User,
+    user: User = Depends(current_user),
 ):
     """
     Удаление резервирования комнаты:
@@ -115,7 +114,7 @@ async def update_reservation(
     ),
     obj_in: ReservationRoomUpdate,
     session: AsyncSession = Depends(get_async_session),
-    user: User,
+    user: User = Depends(current_user),
 ):
     """
     Запрос на изменение резервирования комнаты
