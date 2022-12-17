@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     app_title: str = "..."
     app_description: str = "..."
     database_url: str = "sqlite+aiosqlite:///./fastapi.db"
-    app_version: str = "1.0.5"
+    app_version: str = "1.0.0"
     secret_key: str = "SECRET"
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None

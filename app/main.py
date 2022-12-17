@@ -11,6 +11,7 @@ app = FastAPI(
     title=settings.app_title,
     description=settings.app_description,
     version=settings.app_version,
+    redoc_url=None,
 )
 
 # Подключаем роутер
