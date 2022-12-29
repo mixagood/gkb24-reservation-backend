@@ -8,7 +8,7 @@ from app.core.db import Base
 class MeetingRoom(Base):
     # nullable = Значит, что не должно быть пустым
     name = Column(String(100), unique=True, nullable=False)
-    description = Column(Text)
+    description = Column(Text(500))
     # Установим связь между моделями через relationship по принципу OneToMany
     # в модели Relationship ссылка на таблицу MeetingRoom через ForeignKey
     # В relationship прописываем строку, а не передаём класс - иначе, в случае
