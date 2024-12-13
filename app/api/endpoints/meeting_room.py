@@ -7,7 +7,7 @@ from app.core.user import current_superuser
 from app.crud.meeting_room import meeting_room_crud
 from app.crud.reservation import reservation_crud
 from app.api.validators import check_meeting_room_exists, check_name_duplicate
-from app.schemas.reservation import ReservationRoomDB
+from app.schemas.reservation import ReservationRoomDB, ReservationWithRoomName
 from app.schemas.meeting_room import (
     MeetingRoomCreate,
     MeetingRoomDB,

@@ -1,7 +1,7 @@
 # app/models/reservation.py
 from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from app.core.db import Base
-
+from sqlalchemy.orm import relationship
 
 class Reservation(Base):
     from_reserve = Column(DateTime)
@@ -11,5 +11,8 @@ class Reservation(Base):
     # Поле с указанием внешнего ключа пользователей
     user_id = Column(Integer, ForeignKey("user.id"))
 
+    meeting_room = relationship("MeetingRoom", back_populates="reservations")
+
     def __repr__(self) -> str:
         return f"Уже забронировано с {self.from_reserve} по {self.to_reserve}"
+

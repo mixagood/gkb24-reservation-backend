@@ -14,6 +14,7 @@ from app.schemas.reservation import (
     ReservationRoomDB,
     ReservationRoomUpdate,
     ReservationRoomCreate,
+    ReservationWithRoomName
 )
 
 
@@ -143,7 +144,7 @@ async def update_reservation(
 
 @router.get(
     "/my_reservations",
-    response_model=list[ReservationRoomDB],
+    response_model=list[ReservationWithRoomName],
     # Добавим множество с полями, которые нужно исключить из ответа
     response_model_exclude={"user_id"},
 )

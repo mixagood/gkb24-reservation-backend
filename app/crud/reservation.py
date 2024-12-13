@@ -5,7 +5,9 @@ from sqlalchemy import and_, between, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud.base import CRUDBase
 from app.models import User, Reservation
+from sqlalchemy.orm import joinedload
 
+from app.schemas.reservation import ReservationWithRoomName
 
 class CRUDReservation(CRUDBase):
     async def get_reservations_at_the_same_time(
@@ -65,11 +67,39 @@ class CRUDReservation(CRUDBase):
 
     async def get_by_user(
         self, session: AsyncSession, user: User
-    ) -> list[Reservation]:
+    ) -> list[ReservationWithRoomName]:
         reservations = await session.execute(
-            select(Reservation).where(Reservation.user_id == user.id)
+            select(Reservation)
+            # Добавил тут join
+            .options(joinedload(Reservation.meeting_room))
+            .where(Reservation.user_id == user.id)
         )
-        return reservations.scalars().all()
+        reservations = reservations.scalars().all()
+
+        return [
+            ReservationWithRoomName(
+                id=reservation.id,
+                meetingroom_id=reservation.meetingroom_id,
+                user_id=reservation.user_id,
+                from_reserve=reservation.from_reserve,
+                to_reserve=reservation.to_reserve,
+                meeting_room_name=reservation.meeting_room.name, # Добавляем имя комнаты
+            )
+            for reservation in reservations
+        ]
 
 
 reservation_crud = CRUDReservation(Reservation)
+
+
+
+#     async def get_by_user(
+#         self, session: AsyncSession, user: User
+#     ) -> list[Reservation]:
+#         reservations = await session.execute(
+#             select(Reservation).where(Reservation.user_id == user.id)
+#         )
+#         return reservations.scalars().all()
+
+
+# reservation_crud = CRUDReservation(Reservation)

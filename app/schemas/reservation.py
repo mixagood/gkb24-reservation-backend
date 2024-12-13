@@ -57,3 +57,16 @@ class ReservationRoomDB(ReservationRoomBase):
     # разрешим сериализацию объектов из БД
     class Config:
         orm_mode = True
+
+
+class ReservationWithRoomName(ReservationRoomBase):
+    id: int
+    meetingroom_id: int
+    user_id: Optional[int]
+
+    from_reserve: datetime
+    to_reserve: datetime
+    meeting_room_name: str
+
+    class Config:
+        orm_mode = True
