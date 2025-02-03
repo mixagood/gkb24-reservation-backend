@@ -21,6 +21,7 @@ class CRUDReservation(CRUDBase):
         meetingroom_id: int,
         # Опциональный параметр - id объекта бронирования
         reservation_id: Optional[int] = None,
+        comment: Optional[str] = None,
         session: AsyncSession,
     ) -> list[Reservation]:
 
@@ -84,6 +85,7 @@ class CRUDReservation(CRUDBase):
                 from_reserve=reservation.from_reserve,
                 to_reserve=reservation.to_reserve,
                 meeting_room_name=reservation.meeting_room.name, # Добавляем имя комнаты
+                comment=reservation.comment
             )
             for reservation in reservations
         ]

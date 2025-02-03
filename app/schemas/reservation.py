@@ -17,7 +17,7 @@ class ReservationRoomBase(BaseModel):
 
     class Config:
         # Запрещает передавать параметры, которые не будут описаны в схеме
-        extra = Extra.forbid
+        extra = Extra.forbid    
 
 
 class ReservationRoomUpdate(ReservationRoomBase):
@@ -43,6 +43,7 @@ class ReservationRoomUpdate(ReservationRoomBase):
 # наследуемся от ReservationRoomUpdate с его валидаторами
 class ReservationRoomCreate(ReservationRoomUpdate):
     meetingroom_id: int
+    comment: Optional[str] = None  # Добавлено поле комментария
 
 
 # Pydantic-схема для валидации объектов из БД
@@ -53,6 +54,7 @@ class ReservationRoomDB(ReservationRoomBase):
     id: int
     meetingroom_id: int
     user_id: Optional[int]
+    comment: Optional[str]
 
     # разрешим сериализацию объектов из БД
     class Config:
@@ -63,6 +65,7 @@ class ReservationWithRoomName(ReservationRoomBase):
     id: int
     meetingroom_id: int
     user_id: Optional[int]
+    comment: Optional[str]
 
     from_reserve: datetime
     to_reserve: datetime

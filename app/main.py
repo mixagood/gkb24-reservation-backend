@@ -17,13 +17,19 @@ app = FastAPI(
 # Для работы фронта
 from fastapi.middleware.cors import CORSMiddleware
 
+origins = [
+    "http://localhost",
+    "http://127.0.0.1:5173",  # Vite Dev Server
+    "http://127.0.0.1",  # Если запущено через Apache
+]
+
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Источник запросов (фронтенд)
+    allow_origins=origins,  # Источник запросов (фронтенд)
     allow_credentials=True,                   # Разрешение на отправку cookies
-    allow_methods=["*"],                      # Разрешить все методы (GET, POST и т.д.)
     allow_headers=["*"],                      # Разрешить все заголовки
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE"],  # Явное указание разрешенных методов
 )
 
 
